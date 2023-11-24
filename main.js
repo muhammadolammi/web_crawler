@@ -1,4 +1,4 @@
-const {crawlPage} = require('./crawl.js')
+const {crawlExPage, crawlInPage} = require('./crawl.js')
 const {printReport} =require('./report.js')
 async function main(){
     if(process.argv<3){
@@ -14,8 +14,12 @@ async function main(){
     }
     let currentURL = website
   
-    let pages = await crawlPage(website, currentURL, {})
-    printReport(pages)
+    let inPages = await crawlInPage(website, currentURL, {})
+    let inLabel = 'Internal links'
+    printReport(inPages, inLabel)
+    let exPages = await crawlExPage(website, currentURL, {})
+    let exLabel = 'External links'
+    printReport(exPages, exLabel)
     
 
     

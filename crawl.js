@@ -38,7 +38,7 @@ function getURLsFromHTML(htmlBody, baseURL){
   }
 
 
-  async function crawlPage(baseURL,currentURL,pages){
+  async function crawlInPage(baseURL,currentURL,pages){
     
     let baseUrlObj = new URL(baseURL)
     let currentURLObj =new URL(currentURL)
@@ -77,7 +77,7 @@ function getURLsFromHTML(htmlBody, baseURL){
     let nextUrls = getURLsFromHTML(htmlBody,baseURL)
     
     const newUrls = nextUrls.filter(url => !pages.hasOwnProperty(normalizeURL(url)));
-    await Promise.all(newUrls.map(url => crawlPage(baseURL, url, pages)));
+    await Promise.all(newUrls.map(url => crawlInPage(baseURL, url, pages)));
     return pages
     
 
@@ -85,6 +85,14 @@ function getURLsFromHTML(htmlBody, baseURL){
 
 
     
+   
+  }
+
+
+  async function crawlExPage(baseURL,currentURL,externalURL,pages){
+    
+    
+    return pages  
    
   }
 
@@ -98,6 +106,7 @@ function getURLsFromHTML(htmlBody, baseURL){
 
 
 
+
 module.exports ={
-    normalizeURL, getURLsFromHTML,crawlPage
+    normalizeURL, getURLsFromHTML, crawlInPage, crawlExPage
 }

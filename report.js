@@ -1,5 +1,5 @@
-function printReport(pages){
-    console.log('starting report........')
+function printReport(pages, pageLabel){
+    console.log(`starting report for ${pageLabel}........`)
     
     let pagesArray = Object.entries(pages);
   
@@ -9,7 +9,7 @@ function printReport(pages){
         
         console.log(`found ${pagesArray[i][0]} internal links to ${pagesArray[i][1]}`)
     }
-    console.log(`internal links total counts : ${pagesArray.length}`)
+    console.log(`${pageLabel} total counts : ${pagesArray.length}`)
 }
 
 
