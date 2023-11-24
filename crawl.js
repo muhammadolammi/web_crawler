@@ -23,7 +23,7 @@ function getURLsFromHTML(htmlBody, baseURL){
             try{
                 urls.push(new URL(aElement.href, baseURL).href)
             }catch(err){
-                console.log(`this error: '${err.message}' while pushing ${aElement.href}`)
+                console.log(`this error: '${err.message}' while pushing ${aElement.href} into urls func getURLsFromHTML`)
             }
 
         }else{
@@ -89,10 +89,72 @@ function getURLsFromHTML(htmlBody, baseURL){
   }
 
 
-  async function crawlExPage(baseURL,currentURL,externalURL,pages){
+  async function crawlExPage(baseURL,currentURL,urlsToCheck,checkedUrl,externalLinks,emails){
+    
+    //write a base to  break out , just check if url is checked alrady
+    if(checkedUrl.includes(currentURL) ){
+        return externalLinks
+    }
+    //get urls in the currect url and append external and internal to lists
+    let htmlBody =''
+    try{
+        let res = await fetch(currentURL)
+        if(res.status !==200){
+            console.log(`status code : ${res.status}`)
+            return externalLinks
+        }
+        let contentType = res.headers.get('content-type')
+        if (!contentType.includes('text/html')){
+            console.log(`not a text/html page, page is of type ${contentType}`)
+            
+            return externalLinks
+        }
+        htmlBody = await res.text()
+    
+    }catch(err){
+        console.log(`${err.message}`)
+
+    }
+
+    let allUrl = getURLsFromHTML(htmlBody,baseURL)
+    
+    for (let url of allUrl){
+        
+        
+      let  baseURLObj = new URL(baseURL)
+      let urlObj = new URL(url)
+      //check for emails and append to email list
+      if(urlObj.protocol === 'mailto:'){
+        if (!emails.includes(urlObj.pathname)){
+        emails.push(urlObj.pathname)}
+      }
+      //check for external links and append to external links
+      if (urlObj.hostname !== baseURLObj.hostname){
+        
+            externalLinks.push(urlObj.href)
+      }
+      // check for internal links and append for links to check
+      if (urlObj.hostname === baseURLObj.hostname){
+       if (!urlObj.hash){
+        urlsToCheck.push(urlObj.href)
+       }
+        
+        
+  }
+    }
+
+    //console.log(externalLinks)
+     //console.log(emails)
+    //  console.log(urlsToCheck)
+  
+    
+
+        
     
     
-    return pages  
+
+    
+   
    
   }
 
