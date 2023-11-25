@@ -77,7 +77,9 @@ function getURLsFromHTML(htmlBody, baseURL){
     let nextUrls = getURLsFromHTML(htmlBody,baseURL)
     
     const newUrls = nextUrls.filter(url => !pages.hasOwnProperty(normalizeURL(url)));
-    await Promise.all(newUrls.map(url => crawlInPage(baseURL, url, pages)));
+    for(let url of newUrls){
+        await crawlInPage(baseURL,url,pages)
+    }
     return pages
     
 
@@ -89,25 +91,26 @@ function getURLsFromHTML(htmlBody, baseURL){
   }
 
 
-  async function crawlExPage(baseURL,currentURL,urlsToCheck,checkedUrl,externalLinks,emails){
-    
-    //write a base to  break out , just check if url is checked alrady
-    if(checkedUrl.includes(currentURL) ){
-        return externalLinks
+  async function crawlExPage(baseURL,currentURL,checkedUrls, obj){
+    //write the base 
+    if(checkedUrls.has(currentURL)){
+        return obj
     }
-    //get urls in the currect url and append external and internal to lists
+
+    console.log(`lets crawl ${currentURL}`)
     let htmlBody =''
+    //get html body
     try{
         let res = await fetch(currentURL)
         if(res.status !==200){
             console.log(`status code : ${res.status}`)
-            return externalLinks
+            return obj
         }
         let contentType = res.headers.get('content-type')
         if (!contentType.includes('text/html')){
             console.log(`not a text/html page, page is of type ${contentType}`)
             
-            return externalLinks
+            return obj
         }
         htmlBody = await res.text()
     
@@ -116,47 +119,55 @@ function getURLsFromHTML(htmlBody, baseURL){
 
     }
 
-    let allUrl = getURLsFromHTML(htmlBody,baseURL)
-    
-    for (let url of allUrl){
+  let urlsOnPage = getURLsFromHTML(htmlBody,baseURL)
+  let nextUrls =[]
+  for(let pageUrl of urlsOnPage){
+   let urlObj = new URL(pageUrl)
+   let baseUrlObj = new URL(baseURL)
+   //add external links to object
+   if(urlObj.hostname !== baseUrlObj.hostname){
+     if(!obj.hasOwnProperty(urlObj.href)){
+        obj[urlObj.href] =1
         
+     }else{obj[urlObj.href] ++}
+     
+   }
+   //push internal links to next urls
+   else{
+    if(!urlObj.hash){
+        nextUrls.push(urlObj.href)
         
-      let  baseURLObj = new URL(baseURL)
-      let urlObj = new URL(url)
-      //check for emails and append to email list
-      if(urlObj.protocol === 'mailto:'){
-        if (!emails.includes(urlObj.pathname)){
-        emails.push(urlObj.pathname)}
-      }
-      //check for external links and append to external links
-      if (urlObj.hostname !== baseURLObj.hostname){
-        
-            externalLinks.push(urlObj.href)
-      }
-      // check for internal links and append for links to check
-      if (urlObj.hostname === baseURLObj.hostname){
-       if (!urlObj.hash){
-        urlsToCheck.push(urlObj.href)
-       }
-        
-        
-  }
     }
+    
+   }
+    
+  }
 
-    //console.log(externalLinks)
-     //console.log(emails)
-    //  console.log(urlsToCheck)
-  
+ checkedUrls.add(currentURL)
+// for(let url of nextUrls){
+//     if(!checkedUrls.includes(url)){
+//         obj = await crawlExPage(baseURL,url,checkedUrls,obj)
+//     }
     
+// }
+//filter the n
 
-        
-    
-    
+const newUrls = nextUrls.filter(url => !checkedUrls.has(url));
+for (let nextUrl of newUrls) {
+    await crawlExPage(baseURL, nextUrl,checkedUrls,obj);
+}
 
-    
-   
+
+
+
+return obj
    
   }
+
+  
+
+
+  // write a crawl ex page r function that takes only base url and current url as input then recursively call the crawlExpage function
 
 
 

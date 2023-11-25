@@ -14,17 +14,15 @@ async function main(){
     }
     let currentURL = website
   
-    // let inPages = await crawlInPage(website, currentURL, {})
-    // let inLabel = 'Internal links'
-    // printReport(inPages, inLabel)
-    // let exPages = await crawlExPage(website, currentURL, {})
-    // let exLabel = 'External links'
-    // printReport(exPages, exLabel)
-let urlsToCheckList = [];
-let checkedUrl = [];
-let externalLinksList = [];
-let emailList = [];
-let externalLinks = await crawlExPage(website, currentURL, urlsToCheckList, checkedUrl, externalLinksList, emailList);
+    let inPages = await crawlInPage(website, currentURL, {})
+    let inLabel = 'Internal links'
+    printReport(inPages, inLabel)
+    let exLabel = 'External links'
+    let obj = {}
+    let checkedUrls =new Set()
+    let obJ =await  crawlExPage(website,currentURL,checkedUrls,obj)
+
+    printReport(obj, exLabel)
 
     
 
