@@ -1,10 +1,10 @@
 const {crawlExPage, crawlInPage} = require('./crawl.js')
 const {printReport} =require('./report.js')
 async function main(){
-    if(process.argv<3){
+    if(process.argv<4){
         console.log(`Provide website url to run`)
     }
-    if(process.argv>3){
+    if(process.argv>4){
         console.log(`Command more than needed`)
     }
     try{
@@ -16,13 +16,19 @@ async function main(){
   
     let inPages = await crawlInPage(website, currentURL, {})
     let inLabel = 'Internal links'
-    printReport(inPages, inLabel)
+    
     let exLabel = 'External links'
     let obj = {}
     let checkedUrls =new Set()
     let obJ =await  crawlExPage(website,currentURL,checkedUrls,obj)
-
-    printReport(obj, exLabel)
+    
+    if(process.argv[3]== internal){
+        printReport(inPages, inLabel)
+    }
+    if(process.argv[3]== external){
+        printReport(obJ, exLabel)
+    }
+    
 
     
 
